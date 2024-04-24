@@ -1,5 +1,4 @@
 import re, operator
-import main
 
 class character:
     defined_characters = []
@@ -92,7 +91,6 @@ class character:
                     i += 1
         print(string.rstrip(",\n"))
 
-
 characters = { #chicchikin is id no. 0, febbyfaber is id no. 1, etc.
 "name": ["chicchikin", "febbyfaber", "foxifox", "bonybuni"], 
 "attack": [60, 80, 60, 70],
@@ -101,19 +99,8 @@ characters = { #chicchikin is id no. 0, febbyfaber is id no. 1, etc.
 "actionIDs": [[0, 1, 3], [1, 2, 5], [4, 5, 6], [0, 2, 6]]
 }
 
-class action:
+class enemy:
     def __init__(self, id):
-        pass
-
-    def use_action(self):
-        pass
-
-# Types of moves:
-# Single, Area, DoT, Buff, Debuff, Special
-actions = { 
-"defaultName": ["Punch"],
-"type": ["Single"],
-"calculation": [0.80]
-}
-if __name__ == "__main__":
-    print("my dick")
+        self.id = id
+        for attr in ["name", "attack", "health", "speed", "actionIDs"]:
+            setattr(self, attr, characters[attr][id])

@@ -14,8 +14,6 @@ def main():
     foxifox = p.character(2)
     foxifox.join_party(partyList, 2)
     p.character.printChars()
-    
-
 
 if __name__ == "__main__":
     main()
