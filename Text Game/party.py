@@ -13,14 +13,8 @@ class character:
         character.defined_characters.sort(key=operator.attrgetter('id'))
     
     def print_stats(self):
-        print(f"Name: {self.name}\nHealth: {self.health}\nAttack: {self.level}\nSpeed: {self.speed}\n{(str(self.action_list())).strip("[]").replace("'", "")}")
+        print(f"Name: {self.name}\nHealth: {self.health}\nAttack: {self.level}\nSpeed: {self.speed}\n{(str(self.actionIDs)).strip("[]").replace("'", "")}")
         
-    def action_list(self):
-        # Returns a list of actions based on the character's action IDs for printing
-        l = []
-        for id in self.actionIDs:
-            l.append(actions[id])
-        return l
     
     def gain_experience(self, exp):
         # Increases experience by a given amount and automatically increases level
