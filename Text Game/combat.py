@@ -13,8 +13,14 @@ def combat(plr: list, enm: list):
         set.append({"name":enmy.name,"attack":enmy.attack,"speed":enmy.speed,"counter":enmy.speed,"maxHP":enmy.health,"HP":enmy.health,"actions":enmy.actionIDs,"type":"enmy","state":["alive"]})
 
     for ent in set:
+        temp = {}
         for item in ent["actions"]:
-            action.all_actions.add(item)
+            temp.add(item)
+        for item in temp:
+            for i in actionDict:
+                if item in i:
+                    action(actionDict["names"].index(i))
+                    break
 
     for i in range(len(set), 8):
         set.append({"name":"","speed":99999,"counter":99999,"maxHP":100,"HP":0,"type":"","state":[""]})
@@ -26,10 +32,10 @@ def combat(plr: list, enm: list):
 
     while True:
 
-        if set[i]["health"] in range(4,8) <= 0:
+        if set[i]["HP"] in range(4,8) <= 0:
             pass # Should trigger win sequence for player
             break
-        elif set[i]["health"] in range(0,4) <= 0:
+        elif set[i]["HP"] in range(0,4) <= 0:
             pass # Should trigger loss sequence for player
             break
 
@@ -50,9 +56,8 @@ def combat(plr: list, enm: list):
                     actions[i] = set[i]["actions"][random.randint(0, len(set[i]["actions"]))]
 
     # Removing all action objects at the end of battle
-    for item in action.all_actions:
-        action.all_actions.discard(item)
-        del item
+    for act in action.all_actions:
+        act.del_self()
      
             
 def printMenus(set):
@@ -89,21 +94,35 @@ def useActions(acts, set):
             case "s":
                 dmg = acts[i].calculation[0] * set[i]["attack"]
                 tar = [set[4], set[5], set[6], set[7]]
-                for i in tar:
-                    if i["health"] <= 0:
-                        del tar[tar.index(i)]
-                    elif "taunt" in i["state"]:
-                        tar = [i]
+                for e in tar:
+                    if e["HP"] <= 0:
+                        del tar[tar.index(e)]
+                    elif "taunt" in e["state"]:
+                        tar = [e]
                         break
-                set[4+random.randint(0, len(tar))]["health"] -= dmg
-                print(f"{set[i]["name"]} did {dmg} damage to all enemies with {acts[i]["name"]}")
+                tar = tar[random.randint(0, len(tar))]
+                tar["HP"] -= dmg
+                print(f"{set[i]["name"]} did {dmg} damage to {tar["name"]} with {acts[i]["name"]}")
             case "a":
                 dmg = acts[i].calculation[0] * set[i]["attack"]
-                for i in range(4,8):
-                    set[i]["health"] -= dmg
+                for e in range(4,8):
+                    set[e]["HP"] -= dmg
                 print(f"{set[i]["name"]} did {dmg} damage to all enemies with {acts[i]["name"]}")
             case "h":
-                pass
+                heal = acts[i].calculation[0] * set[i]["attack"]
+                tar = [set[0], set[1], set[2], set[3]]
+                for e in tar:
+                    if e["HP"] <= 0 or e["HP"] == e["maxHP"]:
+                        del tar[tar.index(e)]
+                valTar = []
+                for e in range(acts[i].calculation[1]):
+                    valid = tar[random.randint(0, len(tar))]
+                    if valid not in valTar:
+                        valTar.append(valid)
+                        del tar[tar.index(valid)]
+                for ent in valTar:
+                    ent["HP"] -= heal
+                print(f"{set[i]["name"]} healed {heal} HP to {len(valTar)} targets with {acts[i]["name"]}")
             case "b":
                 pass
             case "d":
@@ -114,11 +133,37 @@ def useActions(acts, set):
                 pass
         match acts[i+4]["type"]:
             case "s":
-                pass
+                dmg = acts[i+4].calculation[0] * set[i]["attack"]
+                tar = [set[0], set[1], set[2], set[3]]
+                for e in tar:
+                    if e["HP"] <= 0:
+                        del tar[tar.index(e)]
+                    elif "taunt" in e["state"]:
+                        tar = [e]
+                        break
+                tar = set[4+random.randint(0, len(tar))]["HP"]
+                tar["HP"] -= dmg
+                print(f"{set[i+4]["name"]} did {dmg} damage to {tar["name"]} with {acts[i+4]["name"]}")
             case "a":
-                pass
+                dmg = acts[i].calculation[0] * set[i]["attack"]
+                for e in range(0,4):
+                    set[e]["HP"] -= dmg
+                print(f"{set[i]["name"]} did {dmg} damage to all enemies with {acts[i]["name"]}")
             case "h":
-                pass
+                heal = acts[i].calculation[0] * set[i]["attack"]
+                tar = [set[4], set[5], set[6], set[7]]
+                for e in tar:
+                    if e["HP"] <= 0 or e["HP"] == e["maxHP"]:
+                        del tar[tar.index(e)]
+                valTar = []
+                for e in range(acts[i].calculation[1]):
+                    valid = tar[random.randint(0, len(tar))]
+                    if valid not in valTar:
+                        valTar.append(valid)
+                        del tar[tar.index(valid)]
+                for ent in valTar:
+                    ent["HP"] -= heal
+                print(f"{set[i]["name"]} healed {heal} HP to {len(valTar)} targets with {acts[i]["name"]}")
             case "b":
                 pass
             case "d":
@@ -137,9 +182,16 @@ class action:
         self.id = id
         for attr in ["name", "type", "calculation"]:
             setattr(self, attr, actionDict[attr][id])
+        action.all_actions.add(self)
+    
+    def del_self():
+        action.all_actions.delete(self)
+        del self
 
 # Action types are as follows:
-# Single, Area, Healing, Buffing, Debuffing, Special
+# Single | Area   | Healing       | Buffing       | Debuffing                          | Special
+# Calculations per type are as follows
+# [%DMG] | [%DMG] | [%DMG,NO.TAR] | [BFID,LENGTH] | [DBFID,LENGTH,%DMG(if applicable)] | [LENGTH, %DMG]
 actionDict = {
 "names": [],
 "type": [],
