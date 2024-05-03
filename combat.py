@@ -24,12 +24,7 @@ def combat(plr: list, enm: list):
 
     for i in range(len(set), 8):
         set.append({"name":"","speed":99999,"counter":99999,"maxHP":100,"HP":0,"type":"","state":[""]})
-        
-    # V Will be removed V
-    for i in set:
-        print(f"{i}. {set["name"]}{" " * (12-len(set["name"]))} SPD: {set["speed"]}")
-    # ^                 ^
-
+    
     while True:
 
         if set[i]["HP"] in range(4,8) <= 0:
@@ -75,7 +70,7 @@ def printMenus(set):
         else:
             plr = "        "
 
-        print(f"{enm}{set[i+4]["name"]}{" "*(12-len(set[i+4]["name"]))} [{"="*math.round(10-((set[i+4]["maxHP"]-set[i+4]["HP"])/set[i+4]["maxHP"]*10))}{" "*math.round(10-(-set[i+4]["HP"]/set[i+4]["maxHP"]*10))}]     [{"="*math.round(10-((set[i]["maxHP"]-set[i+4]["HP"])/set[i]["maxHP"]*10))}{" "*math.round(10-(-set[i+4]["HP"]/set[i+4]["maxHP"]*10))}] {set[i]["name"]}{" "*(12-len(set[i]["name"]))}{plr}")
+        print(f"{enm}{set[i+4]['name']}{' '*(12-len(set[i+4]['name']))} [{'='*math.round(10-((set[i+4]['maxHP']-set[i+4]['HP'])/set[i+4]['maxHP']*10))}{' '*math.round(10-(-set[i+4]['HP']/set[i+4]['maxHP']*10))}]     [{'='*math.round(10-((set[i]['maxHP']-set[i+4]['HP'])/set[i]['maxHP']*10))}{' '*math.round(10-(-set[i+4]['HP']/set[i+4]['maxHP']*10))}] {set[i]['name']}{' '*(12-len(set[i]['name']))}{plr}")
 
 def getActions(char):
     i = 1
@@ -102,12 +97,12 @@ def useActions(acts, set):
                         break
                 tar = tar[random.randint(0, len(tar))]
                 tar["HP"] -= dmg
-                print(f"{set[i]["name"]} did {dmg} damage to {tar["name"]} with {acts[i]["name"]}")
+                print(f"{set[i]['name']} did {dmg} damage to {tar['name']} with {acts[i]['name']}")
             case "a":
                 dmg = acts[i].calculation[0] * set[i]["attack"]
                 for e in range(4,8):
                     set[e]["HP"] -= dmg
-                print(f"{set[i]["name"]} did {dmg} damage to all enemies with {acts[i]["name"]}")
+                print(f"{set[i]['name']} did {dmg} damage to all enemies with {acts[i]['name']}")
             case "h":
                 heal = acts[i].calculation[0] * set[i]["attack"]
                 tar = [set[0], set[1], set[2], set[3]]
@@ -122,7 +117,7 @@ def useActions(acts, set):
                         del tar[tar.index(valid)]
                 for ent in valTar:
                     ent["HP"] -= heal
-                print(f"{set[i]["name"]} healed {heal} HP to {len(valTar)} targets with {acts[i]["name"]}")
+                print(f"{set[i]['name']} healed {heal} HP to {len(valTar)} targets with {acts[i]['name']}")
             case "b":
                 pass
             case "d":
@@ -143,12 +138,12 @@ def useActions(acts, set):
                         break
                 tar = set[4+random.randint(0, len(tar))]["HP"]
                 tar["HP"] -= dmg
-                print(f"{set[i+4]["name"]} did {dmg} damage to {tar["name"]} with {acts[i+4]["name"]}")
+                print(f"{set[i+4]['name']} did {dmg} damage to {tar['name']} with {acts[i+4]['name']}")
             case "a":
                 dmg = acts[i].calculation[0] * set[i]["attack"]
                 for e in range(0,4):
                     set[e]["HP"] -= dmg
-                print(f"{set[i]["name"]} did {dmg} damage to all enemies with {acts[i]["name"]}")
+                print(f"{set[i]['name']} did {dmg} damage to all enemies with {acts[i]['name']}")
             case "h":
                 heal = acts[i].calculation[0] * set[i]["attack"]
                 tar = [set[4], set[5], set[6], set[7]]
@@ -163,7 +158,7 @@ def useActions(acts, set):
                         del tar[tar.index(valid)]
                 for ent in valTar:
                     ent["HP"] -= heal
-                print(f"{set[i]["name"]} healed {heal} HP to {len(valTar)} targets with {acts[i]["name"]}")
+                print(f"{set[i]['name']} healed {heal} HP to {len(valTar)} targets with {acts[i]['name']}")
             case "b":
                 pass
             case "d":

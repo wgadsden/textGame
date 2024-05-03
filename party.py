@@ -13,7 +13,7 @@ class character:
         character.defined_characters.sort(key=operator.attrgetter('id'))
     
     def print_stats(self):
-        print(f"Name: {self.name}\nHealth: {self.health}\nAttack: {self.level}\nSpeed: {self.speed}\n{(str(self.actionIDs)).strip("[]").replace("'", "")}")
+        print(f"Name: {self.name}\nHealth: {self.health}\nAttack: {self.level}\nSpeed: {self.speed}\n")
         
     
     def gain_experience(self, exp):

@@ -94,7 +94,7 @@ def movePos(map, pos):
     if ">" in map[a[0]][a[1]][0]:
         temp += "| R: right"
 
-    print(f"Which direction do you want to go?\n{temp.lstrip("|")}")
+    print(f"Which direction do you want to go?\n{temp.lstrip('|')}")
 
     match input("> ").lower():
         case "u":
@@ -125,6 +125,18 @@ def movePos(map, pos):
     else:
         return None
 
+def checkPos(map, pos):
+    a = pos.split(",")
+    a[0] = int(a[0]) - 1
+    a[1] = int(a[1]) - 1
+    if false in map[a[0]][a[1]]:
+        match map[a[0]][a[1]][0][-1]:
+            case "F":
+                print("Here would be a fight")
+            case "T":
+                print("Here you would find treasure")
+            case "E":
+                print("Here you would fight a boss to advance to the next stage")
 
 while True:
     printMap(map1, playerPos)
