@@ -1,3 +1,5 @@
+# All map-based functions
+
 # Arrows (^V<>) are "connections" between nodes
 # (First) letter is the type of location
 # S = start, F = fight, T = treasure, E = end/boss
@@ -5,7 +7,7 @@
 # (Third) letter is if the location has been discovered or not (Only locations)
 map1 = [
 [["V>"],["<V>F",False],["<>T",False],["<V"]],
-[["^VS",True],["^>"],["<V"],["^V>E",False]],
+[["^VS",True],["^>"],["<V"],["^V>B",False]],
 [["^>"],["<>"], ["<^>F",False],["<^"]]
 ]
 playerPos = "2,1"
@@ -46,7 +48,7 @@ def printMap(map,pos):
                 node[2] = "".join(node[2])
 
 
-            if "S" in column[0] or "F" in column[0] or "T" in column[0] or "E" in column[0]:
+            if "S" in column[0] or "F" in column[0] or "T" in column[0] or "B" in column[0] or "N" in column[0]:
                 for i in range(1,4):
                     node[i] = list(node[i])
                 for i in range(1,4):
@@ -78,7 +80,7 @@ def printMap(map,pos):
 
     for item in final:
         print(item)
-    print("S: Start | F: Fight | T: Treasure | E: End | ?: Undiscovered\n")
+    print("S: Start | F: Fight | T: Treasure | B: Boss | N: Next | ?: Undiscovered\n")
 
 def movePos(map, pos):
     a = pos.split(",")
@@ -90,7 +92,7 @@ def movePos(map, pos):
     if "V" in map[a[0]][a[1]][0]:
         temp += "| D: down "
     if "<" in map[a[0]][a[1]][0]:
-        temp += "| L: left"
+        temp += "| L: left "
     if ">" in map[a[0]][a[1]][0]:
         temp += "| R: right"
 
@@ -113,7 +115,7 @@ def movePos(map, pos):
             else:
                 print("Invalid direction")
         case "r":
-            if "^" in map[a[0]][a[1]][0]:
+            if ">" in map[a[0]][a[1]][0]:
                 temp = f"{a[0]+1},{a[1]+2}"
             else:
                 print("Invalid direction")
@@ -129,15 +131,14 @@ def checkPos(map, pos):
     a = pos.split(",")
     a[0] = int(a[0]) - 1
     a[1] = int(a[1]) - 1
-    if false in map[a[0]][a[1]]:
+    if False in map[a[0]][a[1]]:
         match map[a[0]][a[1]][0][-1]:
             case "F":
-                print("Here would be a fight")
+                return "fight"
             case "T":
-                print("Here you would find treasure")
-            case "E":
-                print("Here you would fight a boss to advance to the next stage")
-
-while True:
-    printMap(map1, playerPos)
-    playerPos = movePos(map1, playerPos)
+                return "treasure"
+            case "B":
+                return "boss"
+            case "N":
+                return "next"
+        map[a[0]][a[1]][1] = True

@@ -1,4 +1,5 @@
 import re, operator
+# Scripts for all party, character, and enemy based functions
 
 class character:
     defined_characters = []
@@ -25,6 +26,8 @@ class character:
             expNeed = round((n*(n^2+75*n-150))/30+2.5-(1/30))
             if exp >= expNeed:
                 self.level += 1
+                self.health += 5
+                self.attack += 2
             else:
                 break
         if self.level > tmpLvl:
@@ -98,3 +101,10 @@ class enemy:
         self.id = id
         for attr in ["name", "attack", "health", "speed", "actionIDs"]:
             setattr(self, attr, characters[attr][id])
+
+enemies = {
+"name": ["Sqrl OG"],
+"attack": [15],
+"speed": [3],
+"actionIDs": [["Gun", "Acorn"]]
+}
