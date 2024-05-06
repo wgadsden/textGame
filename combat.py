@@ -1,5 +1,5 @@
 import math, time, random
-# Scripts for all combat-based functions and actions
+""" Scripts for all combat-based functions and actions """
 
 def combat(plr: list, enm: list):
     timeCounter = 1
@@ -17,10 +17,8 @@ def combat(plr: list, enm: list):
         for item in ent["actions"]:
             temp.add(item)
         for item in temp:
-            for i in actionDict:
-                if item in i:
-                    action(actionDict["names"].index(i))
-                    break
+            action(item)
+            
 
     for i in range(len(set), 8): # Fills remaining slots with "empty" objects
         set.append({"name":"","speed":99999,"counter":99999,"maxHP":100,"HP":0,"type":"","state":[""]})
@@ -41,9 +39,10 @@ def combat(plr: list, enm: list):
         for i in range(8):
             set[i]["counter"] -= timeCounter
             if ent["speed"] < 0 and "alive" in ent["state"]:
-                set[i] = statusEffects(set[i])
                 set[i]["counter"] = set[i]["speed"]
                 set[i]["state"].append("ready")
+        
+        set = statusEffects(set)
         
         printMenus(set)
 
@@ -69,9 +68,7 @@ def combat(plr: list, enm: list):
     if result == "win":
         return "win"
     elif result == "lose":
-        return "lose"
-
-     
+        return "lose"  
             
 def printMenus(set):
     for i in range(0,4):
@@ -89,6 +86,8 @@ def printMenus(set):
             plr = "        "
 
         print(f"{enm}{set[i+4]['name']}{' '*(12-len(set[i+4]['name']))} [{'='*math.round(10-((set[i+4]['maxHP']-set[i+4]['HP'])/set[i+4]['maxHP']*10))}{' '*math.round(10-(-set[i+4]['HP']/set[i+4]['maxHP']*10))}]     [{'='*math.round(10-((set[i]['maxHP']-set[i+4]['HP'])/set[i]['maxHP']*10))}{' '*math.round(10-(-set[i+4]['HP']/set[i+4]['maxHP']*10))}] {set[i]['name']}{' '*(12-len(set[i]['name']))}{plr}")
+
+        time.sleep(0.2)
 
 def getActions(char):
     i = 1
@@ -148,21 +147,28 @@ def useActions(acts, set):
                         set[e]["HP"] -= dmg
                         print(f"{set[i]['name']} did {dmg} damage to {set[e]['name']} with {acts[i]['name']}")
             case "h":
-                heal = acts[i].calculation[0] * set[i]["attack"] * (random.randint(95,105) / 100)
-                tar = [set[0], set[1], set[2], set[3]]
-                for e in tar:
-                    if e["HP"] <= 0 or e["HP"] == e["maxHP"]:
-                        del tar[tar.index(e)]
-                valTar = []
-                for e in range(acts[i].calculation[1]):
-                    valid = tar[random.randint(0, len(tar))]
-                    if valid not in valTar:
-                        valTar.append(valid)
-                        del tar[tar.index(valid)]
-                for ent in valTar:
-                    n = set.index(ent)
-                    set[n]["HP"] -= heal
-                print(f"{set[i]['name']} healed {heal} HP to {len(valTar)} targets with {acts[i]['name']}")
+                heal = acts[i].calculation[0] * set[i]["maxHP"] * (random.randint(95,105) / 100)
+                if acts[i].calculation[1] != "self":
+                    tar = [set[0], set[1], set[2], set[3]]
+                    for e in tar:
+                        if e["HP"] <= 0 or e["HP"] == e["maxHP"]:
+                            del tar[tar.index(e)]
+                    valTar = []
+                    for e in range(acts[i].calculation[1]):
+                        valid = tar[random.randint(0, len(tar))]
+                        if valid not in valTar:
+                            valTar.append(valid)
+                            del tar[tar.index(valid)]
+                    for ent in valTar:
+                        n = set.index(ent)
+                        if set[n]["HP"] + heal > set[n]["maxHP"]:
+                            set[n]["HP"] = set[n]["maxHP"]
+                        else:
+                            set[n]["HP"] += heal
+                    print(f"{set[i]['name']} healed {heal} HP to {len(valTar)} targets with {acts[i]['name']}")
+                else:
+                    set[i+4]["HP"] += heal
+                    print(f"{set[i+4]['name']} healed {heal} HP to themself targets with {acts[i+4]['name']}")
             case "b":
                 match acts[i].calculation[0]:
                     case 0:
@@ -216,6 +222,14 @@ def useActions(acts, set):
                             if temp == False and "alive" in set[e]["state"]:
                                 set[e]["state"].append(["shield", acts[i].calculation[1]])
                                 print(f"{set[e]['name']}'s was shielded by {set[i]['name']}")
+                    case 4:
+                        temp = True
+                        for e in len(set[i+4]["state"].len()):
+                            if "taunt" in e:
+                                temp = False
+                        print(f"{set[i+4]["name"]} taunted the enemy for a turn")
+                        if temp:
+                            set[i+4]["state"].append("taunt")
             case "d":
                 match acts[i].calculation[0]:
                     case 0:
@@ -251,11 +265,11 @@ def useActions(acts, set):
                                 if "poison" in a:
                                     set[e]["state"][set[e]["state"].index(a)][1] = acts[i+4].calculation[1]
                                     temp = True
-                                    print(f"{set[e]["name"]}'s poison debuff was extended")
+                                    print(f"{set[e]["name"]}'s damage over time debuff was extended")
                                     break
                             if temp == False and "alive" in set[e]["state"]:
-                                set[e]["state"].append(["poison", acts[i+4].calculation[1], acts[i+4].calculation[2]])
-                                print(f"{set[e]['name']} was poisoned by {set[i+4]['name']}")
+                                set[e]["state"].append(["poison", acts[i].calculation[1], acts[i].calculation[2]])
+                                print(f"{set[e]['name']} was struck with {acts[i].calculation[3]} by {set[i]['name']}")
             case "sp":
                 match acts[i].calculation[0]:
                     case 0:
@@ -266,7 +280,7 @@ def useActions(acts, set):
                         if len(tar) != 0:
                             tar = tar[random.randint(0, len(tar))]
                             n = set.index(tar)
-                            set[n]["health"] = 30
+                            set[n]["HP"] = 30
                             set[n]["state"].append("alive")
                             print(f"{set[n]["name"]} was revived by {set[i]["name"]}")
                     case 1:
@@ -288,9 +302,7 @@ def useActions(acts, set):
             set[i]["state"].pop(set[i]["state"].index("ready"))
             time.sleep(1)
 
-        for a in range(8):
-            if set[a]["health"] <= 0:
-                set[a]["state"].pop(set[i]["state"].index("alive"))
+        set = checkHP(set)
 
         printMenus(set)
 
@@ -338,21 +350,28 @@ def useActions(acts, set):
                         set[e]["HP"] -= dmg
                         print(f"{set[i+4]['name']} did {dmg} damage to {set[e]['name']} with {acts[i+4]['name']}")
             case "h":
-                heal = acts[i+4].calculation[0] * set[i+4]["attack"] * (random.randint(95,105) / 100)
-                tar = [set[4], set[5], set[6], set[7]]
-                for e in tar:
-                    if e["HP"] <= 0 or e["HP"] == e["maxHP"]:
-                        del tar[tar.index(e)]
-                valTar = []
-                for e in range(acts[i].calculation[1]):
-                    valid = tar[random.randint(0, len(tar))]
-                    if valid not in valTar:
-                        valTar.append(valid)
-                        del tar[tar.index(valid)]
-                for ent in valTar:
-                    n = set.index(tar)
-                    set[n]["HP"] -= heal
-                print(f"{set[i+4]['name']} healed {heal} HP to {len(valTar)} targets with {acts[i+4]['name']}")
+                heal = acts[i+4].calculation[0] * set[i+4]["maxHP"] * (random.randint(95,105) / 100)
+                if acts[i].calculation[1] != "self":
+                    tar = [set[4], set[5], set[6], set[7]]
+                    for e in tar:
+                        if e["HP"] <= 0 or e["HP"] == e["maxHP"]:
+                            del tar[tar.index(e)]
+                    valTar = []
+                    for e in range(acts[i].calculation[1]):
+                        valid = tar[random.randint(0, len(tar))]
+                        if valid not in valTar:
+                            valTar.append(valid)
+                            del tar[tar.index(valid)]
+                    for ent in valTar:
+                        n = set.index(tar)
+                        if set[n]["HP"] + heal > set[n]["maxHP"]:
+                            set[n]["HP"] = set[n]["maxHP"]
+                        else:
+                            set[n]["HP"] += heal
+                    print(f"{set[i+4]['name']} healed {heal} HP to {len(valTar)} targets with {acts[i+4]['name']}")
+                else:
+                    set[i+4]["HP"] += heal
+                    print(f"{set[i+4]['name']} healed {heal} HP to themself targets with {acts[i+4]['name']}")
             case "b":
                 match acts[i].calculation[0]:
                     case 0:
@@ -441,11 +460,11 @@ def useActions(acts, set):
                                 if "poison" in a:
                                     set[e]["state"][set[e]["state"].index(a)][1] = acts[i+4].calculation[1]
                                     temp = True
-                                    print(f"{set[e]["name"]}'s poison debuff was extended")
+                                    print(f"{set[e]["name"]}'s damage over time debuff was extended")
                                     break
                             if temp == False and "alive" in set[e]["state"]:
                                 set[e]["state"].append(["poison", acts[i+4].calculation[1], acts[i+4].calculation[2]])
-                                print(f"{set[e]['name']} was poisoned by {set[i+4]['name']}")
+                                print(f"{set[e]['name']} was struck with {acts[i].calculation[3]} by {set[i+4]['name']}")
             case "sp":
                 match acts[i].calculation[0]:
                     case 0:
@@ -456,7 +475,7 @@ def useActions(acts, set):
                         if len(tar) != 0:
                             tar = tar[random.randint(0, len(tar))]
                             n = set.index(tar)
-                            set[n]["health"] = 30
+                            set[n]["HP"] = 30
                             set[n]["state"].append("alive")
                             print(f"{set[n]["name"]} was revived by {set[i+4]["name"]}")
                     case 1:
@@ -471,6 +490,16 @@ def useActions(acts, set):
                                 if n == "atkUP" or n == "spdUP" or n == "poison":
                                     set[e]["state"][set[e]["state"].index(n)][1] = 0
                         print(f"{set[i+4]["name"]} cleansed their enemy's buffs")
+                    case 3:
+                        temp = True
+                        for e in len(set[i+4]["state"].len()):
+                            if "Bombed" in e:
+                                temp = False
+                        if temp:
+                            set[i+4]["state"].append(["Bombed", 3])
+                            print(f"{set[i+4]["name"]} activates their explosive vest")
+                        else:
+                            print(f"{set[i+4]["name"]} flailed about in agony")
             case None:
                 pass
         
@@ -478,71 +507,107 @@ def useActions(acts, set):
             set[i]["state"].pop(set[i]["state"].index("ready"))
             time.sleep(1)
 
-        for a in range(8):
-            if set[a]["health"] <= 0:
-                set[a]["state"].pop(set[i]["state"].index("alive"))
+        set = checkHP(set)
     
         printMenus(set)
         
-    return set
+    # return set MAY BE UNNECESSARY
 
-def statusEffects(char):
-    for i in range(len(char["state"])):
-        match char["state"][i]:
-            case "atkUP":
-                char["state"][i][1] -= 1
-                if char["state"][i][1] < 1:
-                    char["state"].pop(i)
-                    char["speed"] *= (2/3)
-                    print(f"{char["name"]}'s attack buff ended")
-            case "spdUP":
-                char["state"][i][1] -= 1
-                if char["state"][i][1] < 1:
-                    char["state"].pop(i)
-                    char["speed"] -= 1
-                    print(f"{char["name"]}'s speed buff ended")
-            case "regen":
-                char["state"][i][1] -= 1
-                if char["state"][i][1] < 1:
-                    char["state"].pop(i)
-                    print(f"{char["name"]}'s regeneration buff ended")
-                else:
-                    char["health"] += char["health"]/5
-            case "shield":
-                char["state"][i][1] -= 1
-                if char["state"][i][1] < 1:
-                    char["state"].pop(i)
-                    print(f"{char["name"]}'s shield ended")
+def checkHP(set):
+    for a in range(8):
+        if set[a]["HP"] <= 0:
+            set[a]["state"].pop(set[a]["state"].index("alive"))
+            for st in range(len(set[a]["state"])):
+                if "bombed" in st:
+                        dmg = set[a]["maxHP"]/4
+                        for e in range(8):
+                            set[e]["HP"] -= dmg
+                        print(f"{set[a]["name"]} blew up, dealing {dmg} dmg to everyone")
+                        set[a]["state"].pop(e)
+                        time.sleep(1)
+                        checkHP(set)
+    # return set MAY BE UNNECESSARY
+                    
+def statusEffects(set):
+    for i in range(8):
+        if "alive" in set[i]["state"] and "ready" in set[i]["state"]:
+            for e in range(len(set[i]["state"])):
+                match set[i]["state"][e]:
+                    case "atkUP":
+                        set[i]["state"][e][1] -= 1
+                        if set[i]["state"][e][1] < 1:
+                            set[i]["state"].pop(e)
+                            set[i]["speed"] *= (2/3)
+                            print(f"{set[i]["name"]}'s attack buff ended")
+                    case "spdUP":
+                        set[i]["state"][e][1] -= 1
+                        if set[i]["state"][e][1] < 1:
+                            set[i]["state"].pop(e)
+                            set[i]["speed"] -= 1
+                            print(f"{set[i]["name"]}'s speed buff ended")
+                    case "regen":
+                        set[i]["state"][e][1] -= 1
+                        if set[i]["state"][e][1] < 1:
+                            set[i]["state"].pop(e)
+                            print(f"{set[i]["name"]}'s regeneration buff ended")
+                        else:
+                            set[i]["HP"] += set[i]["HP"]/5
+                    case "shield":
+                        set[i]["state"][e][1] -= 1
+                        if set[i]["state"][e][1] < 1:
+                            set[i]["state"].pop(e)
+                            print(f"{set[i]["name"]}'s shield ended")
+                        
+                    case "atkDW":
+                        set[i]["state"][e][1] -= 1
+                        if set[i]["state"][e][1] < 1:
+                            set[i]["state"].pop(e)
+                            set[i]["speed"] *= 1.5
+                            print(f"{set[i]["name"]}'s attack debuff ended")
+                    case "spdUP":
+                        set[i]["state"][e][1] -= 1
+                        if set[i]["state"][e][1] < 1:
+                            set[i]["state"].pop(e)
+                            set[i]["speed"] -= 1
+                            print(f"{set[i]["name"]}'s speed debuff ended")
+                    case "poison":
+                        set[i]["state"][e][1] -= 1
+                        dmg = set[i]["state"][e][2] * random.randint(95,105) / 100
+                        if set[i]["state"][e][1] < 1:
+                            set[i]["state"].pop(e)
+                            print(f"{set[i]["name"]}'s {set[i]["state"][e][3]} ended")
+                        else:
+                            set[i]["HP"] -= dmg
+                            print(f"{set[i]["name"]}'s {set[i]["state"][e][3]} dealt {dmg} dmg to them")
+
+                    case "bombed":
+                        if set[i]["state"][e][1] > 0:
+                            print(f"{set[i]["name"]} will blow in {set[i]["state"][e][1]} turn(s)")
+                            set[i]["state"][e][1] -= 1
+                        else:
+                            dmg = set[i]["maxHP"]/2
+                            for e in range(8):
+                                set[e]["HP"] -= dmg
+                            print(f"{set[i]["name"]} blew up, dealing {dmg} dmg to everyone")
+                            set[i]["state"].pop(e)
+                            set[i]["HP"] = 0
+                            checkHP(set)
+                    case "taunt":
+                        set[i]["state"].pop(e)
+            time.sleep(1)
+    # return set MAY BE UNNECESSARY
                 
-            case "atkDW":
-                char["state"][i][1] -= 1
-                if char["state"][i][1] < 1:
-                    char["state"].pop(i)
-                    char["speed"] *= 1.5
-                    print(f"{char["name"]}'s attack debuff ended")
-            case "spdUP":
-                char["state"][i][1] -= 1
-                if char["state"][i][1] < 1:
-                    char["state"].pop(i)
-                    char["speed"] -= 1
-                    print(f"{char["name"]}'s speed debuff ended")
-            case "poison":
-                char["state"][i][1] -= 1
-                dmg = char["state"][i][2] * random.randint(95,105) / 100
-                if char["state"][i][1] < 1:
-                    char["state"].pop(i)
-                    print(f"{char["name"]}'s poison ended")
-                else:
-                    char["health"] -= dmg
-                    print(f"{char["name"]}'s poison dealt {dmg} dmg to them")
-
 class action:
     all_actions = {}
 
-    def __init__(self, id):
-        self.id = id
-        for attr in ["name", "type", "calculation"]:
-            setattr(self, attr, actionDict[attr][id])
+    def __init__(self, name):
+        self.name = name
+        self.id = 0
+        for n in actionDict["names"]:
+            if name in n:
+                self.id = actionDict["names"].index(n)
+        for attr in ["type", "calculation"]:
+            setattr(self, attr, actionDict[attr][self.id])
         action.all_actions.add(self)
     
     def del_self():
@@ -550,17 +615,39 @@ class action:
         del self
 
 # Action types are as follows:
-# Single | Area   | Healing       | Buffing       | Debuffing                          | Special
+# Single | Area   | Healing       | Buffing       | Debuffing                                             | Special
 # Calculations per type are as follows
-# [%DMG] | [%DMG] | [%DMG,NO.TAR] | [BFID,LENGTH] | [DBFID,LENGTH,%DMG(if applicable)] | [SPID]
+# [%DMG] | [%DMG] | [%DMG,NO.TAR] | [BFID,LENGTH] | [DBFID,LENGTH,%DMG(if applicable),TXT(if applicable)] | [SPID]
 # Buffs are as follows
-# 0: Atk^  1: Spd^  2: Regen  3: Shield  4:
+# 0: Atk^    1: Spd^     2: Regen     3: Shield    4: Taunt
 # Debuffs are as follows
-# 0: AtkV  1: SpdV  2: DoT  3:  
+# 0: AtkV    1: SpdV     2: DoT       3: 
 # Specials are as follows
-# 0: Revive  1: Cleanse  2: Undebuff
+# 0: Revive  1: Cleanse  2: Undebuff  3: Kamikaze  4: 
+#                                     ^Enemy only
 actionDict = {
-"names": [],
-"type": [],
-"calculation": []
+"names": [
+["Bite", "Gun"], # Single attacks
+["Pizza wheel", "Rap bomb"], # Area attacks
+["Cupcake"], ["Acorn", "Cannibalism"], ["Burger bite"], # Heals
+["Command"], ["Jam out"], ["Sing"], # Buffs
+["Disturbing tone"], ["Cripple"], ["Bleeding slash"], # Debuffs
+["Kamikaze"] # Specials
+], 
+"type": [
+"s", 
+"a", 
+"h", "h", "h",
+"b", "b", "b",
+"d", "d", "d",
+"s"
+],
+"calculation": [
+0.80, 
+0.40, 
+[0.40, 2], [0.50, "self"], [0.30, "self"]
+[0, 2], [1, 2], [2, 2],
+[0, 2], [1, 2], [2, 2, 0.50, "bleed"],
+[3]
+]
 }

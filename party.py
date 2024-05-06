@@ -1,5 +1,5 @@
-import re, operator
-# Scripts for all party, character, and enemy based functions
+import re, operator, random, time
+""" Scripts for all party, character, and enemy based functions """
 
 class character:
     defined_characters = []
@@ -14,9 +14,11 @@ class character:
         character.defined_characters.sort(key=operator.attrgetter('id'))
     
     def print_stats(self):
-        print(f"Name: {self.name}\nHealth: {self.health}\nAttack: {self.level}\nSpeed: {self.speed}\n")
+        temp = "\nActions: "
+        for act in self.actionIDs:
+            temp += f"{act} - "
+        print(f"Name: {self.name} - Level: {self.level}\nHealth: {self.health} - Attack: {self.level} - Speed: {self.speed}{temp.rstrip("- ")}")
         
-    
     def gain_experience(self, exp):
         # Increases experience by a given amount and automatically increases level
         self.experience += exp
@@ -71,40 +73,96 @@ class character:
         """
         Prints a full list of characters with 4 characters per line.
         """
-        string = "Characters:\n"
-        i = 0
-        for item in character.defined_characters:
-            match i:
-                case 3:
-                    string += f" {item.name}\n"
-                    i = 0
-
+        string = ["Characters:\n"]
+        for i in range(character.defined_characters.len()):
+            match i % 4:
                 case 0:
-                    string += f"{item.name},"
-                    i += 1
+                    string += f"{i+1}. {character.defined_characters[i].name},"
 
-                case _:
-                    string += f" {item.name},"
-                    i += 1
-        print(string.rstrip(",\n"))
+                case 3:
+                    string += f" {i+1}. {character.defined_characters[i].name}\n"
+
+                case None:
+                    string += f" {i+1}. {character.defined_characters[i].name},"
+        
+        for line in string.split("\n"):
+            print(line.rstrip(","))
+            time.sleep(0.2)
+            
 
 characters = { #chicchikin is id no. 0, febbyfaber is id no. 1, etc.
-"name": ["chicchikin", "febbyfaber", "foxifox", "bonybuni"], 
-"attack": [60, 80, 60, 70],
-"speed": [4, 3, 2, 3], 
-"health": [60, 75, 90, 80], 
-"actionIDs": [[0, 1, 3], [1, 2, 5], [4, 5, 6], [0, 2, 6]]
+"name": ["chicchikin", "febbyfaber", "bonybuni", "foxifox"], 
+"attack": [50, 65, 60, 50],
+"speed": [2, 3, 3, 4], 
+"health": [70, 75, 80, 90], 
+"actionIDs": [["Bite", "Cupcake", "Sing"], ["Bite", "Command", "Pizza wheel"], ["Bite", "Disturbing tone", "Jam out"], ["Bleeding slash", "Cripple", "Gun"]]
 }
 
 class enemy:
+    all_enemies = {}
+    
     def __init__(self, id):
         self.id = id
-        for attr in ["name", "attack", "health", "speed", "actionIDs"]:
+        for attr in ["name", "attack", "health", "speed", "actionIDs", "tier"]:
             setattr(self, attr, characters[attr][id])
+        enemy.all_enemies.add(self)
+            
+    def find_of_tier(tier):
+        result = []
+        for ent in enemy.all_enemies:
+            if tier in ent.tier:
+                result.append(ent)
+        return result
+    
+    def get_enemies(type, tier, num):
+        
+        options = enemy.find_of_tier(tier)
+        result = []
+        
+        if type == "boss":
+            
+            for ent in options:
+                if "norm" in ent.tier:
+                    options.pop(options.index(ent))
+                  
+            for ent in options:
+                if "boss" in ent.tier:
+                    result.append(ent)
+                    options.pop(options.index(ent))
+                    
+                elif "minion" in ent.tier:
+                    if ent not in result:
+                        result.append(ent)
+                    else:
+                        for i in range(2-(options.len()-1)):
+                            result.append(ent)
 
+        elif type == "fight":
+            for ent in options:
+                if "boss" in ent.tier or "minion" in ent.tier:
+                    options.pop(options.index(ent))
+                    
+            for i in range(num):
+                result.append(options[random.randint(0, len(options))])
+        
+        if len(result) > 4:
+            for i in range(4, len(result)):
+                result.pop(i)
+        
+        return result
+
+    def append_tier(tier):
+        for a in range(enemies["name"].len()):
+            if tier in enemies["tier"][a]:
+                enemy(a)
+    
+# Tiers range from C to S, higher tiers are stronger
+# Tutorial tier are beginner creatures only found in the tutorial section
 enemies = {
-"name": ["Sqrl OG"],
-"attack": [15],
-"speed": [3],
-"actionIDs": [["Gun", "Acorn"]]
+"name": ["Sqrl OG", "OG Crab", "Biggie"],
+"attack": [30, 50, 60],
+"speed": [3, 4, 4],
+"health": [100, 160, 400],
+"actionIDs": [["Gun", "Acorn"], ["Gun", "Cannibalism"], ["Burger bite", "Gun", "Rap bomb"]],
+"tier": ["tutorial,norm", "tutorial,norm", "tutorial,boss"]
 }
