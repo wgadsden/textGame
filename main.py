@@ -16,9 +16,9 @@ def main():
             case "fight":
                 combat("fight", maps[playerMap][playerPos[0]][playerPos[1]])
             case "boss":
-                combat("boss")
+                combat("boss", id=maps[playerMap][playerPos[0]][playerPos[1]][-1])
             case "mini":
-                combat("mini", maps[playerMap][playerPos[0]][playerPos[1]])
+                combat("mini", maps[playerMap][playerPos[0]][playerPos[1]], maps[playerMap][playerPos[0]][playerPos[1]][-1])
             case "treasure":
                 a = random.randint(0, len(mapInfo[playerMap]["treasure"].len()))
                 b = mapInfo[playerMap]["treasure"][a].split(":")
@@ -84,8 +84,8 @@ def charMenu():
             case None:
                 print("Invalid option")
 
-def combat(type, num=2):
-    r = c.combat(partyList,p.enemy.get_enemies(type, mapInfo[playerMap]["tier"], num))
+def combat(type, num=2, id=None):
+    r = c.combat(partyList,p.enemy.get_enemies(type, mapInfo[playerMap]["tier"], num, id))
     match r:
         case "lose":
             print("You lost the battle and were sent back to the start of the map")
@@ -160,34 +160,34 @@ allChars = []
 maps = [
 [ # Map 0 "Tutorial Island"
 [["V>"],["<V>F",False, 4],["<>T",False],["<V"]],
-[["^VS",True],["^>"],["<V"],["^V>B",False],["<N",True]],
+[["^VS",True],["^>"],["<V"],["^V>B",False,1],["<N",True]],
 [["^>"],["<>"], ["<^>F",False, 2],["<^"]]
 ],
 [ # Map 1 "The Night's Eye"
-[["VL",True],["V>F",False,3],["<V"],["V>M",False,3],["<>"],["<VT",False]],
-[["^V>S",True],["<^"],["^>T"],["V^<>"],["<VT",False],["^V>B",False],["<N",True]],
+[["VL",True],["V>F",False,3],["<V"],["V>M",False,3,1],["<>"],["<VT",False]],
+[["^V>S",True],["<^"],["^>T"],["V^<>"],["<VT",False],["^V>B",False,2],["<N",True]],
 [["^>"],["<>F",False,2],["<>"],["^<>F",False,4],["<^>"],["<^F",False,2]]
 ],
 [ # Map 2 "School with an airship crashed into it"
-[["V>S",True],["<V>F",False,3],["<>F",False,4],["<>T",False],["<>M",False,4],["<V"]],
-[["V^"],["V^"],["V>"],["<V>"],["<VF",False,2],["^V>B",False],["<N",True]],
-[["V>L",True],["^>F",False,4],["<^T",False],["^T",False],["^>M",False,4],["<^"]]
+[["V>S",True],["<V>F",False,3],["<>F",False,4],["<>T",False],["<>M",False,4,1],["<V"]],
+[["V^"],["V^"],["V>"],["<V>"],["<VF",False,2],["^V>B",False,2],["<N",True]],
+[["V>L",True],["^>F",False,4],["<^T",False],["^T",False],["^>F",False,4],["<^"]]
 ],
 [ # Map 3 "Fumo Land"
-[[">M",False,3],["<V"],[">T",False],["<>M",False,2],["<VF",False,4],["V>"],["<N",True]],
-[[">T",False],["<^>F",False,3],["<V"],["V>F",False,4],["<V^"],["^>"],["<VB",False]],
+[[">M",False,3,1],["<V"],[">T",False],["<>M",False,2,2],["<VF",False,4],["V>"],["<N",True]],
+[[">T",False],["<^>F",False,3],["<V"],["V>F",False,4],["<V^"],["^>"],["<VB",False,3]],
 [[">L",True],["<>"],["<^>S",True],["<^"],["^>"],["<>T",False],["<^"]]
 ],
 [ # Map 4 "Comically Evil Castle"
 [["VL",True],["V>F",False,4],["<V>"],["<>F",False,3],["<T",False],["V>T",False],["<>"],["<V"]],
-[["V^S",True],["V^>"],["<^>M",False,2],["<V>F",False,3],["<V>F",False,2],["<^"],["V>T",False],["<^F",False,4]],
-[["^>F",False,2],["<^"],[">T",False],["<^"],["^>"],["<M",False,3],["^>B",False],["<N",True]]
+[["V^S",True],["V^>"],["<^>M",False,2,1],["<V>F",False,3],["<V>F",False,2],["<^"],["V>T",False],["<^F",False,4]],
+[["^>F",False,2],["<^"],[">T",False],["<^"],["^>"],["<M",False,3,2],["^>B",False,3],["<N",True]]
 ],
 [ # Map 5 "The Final Boss's Lair"
-[["L>", True],["<>S", True],["<>"],["<>"],["<>"],["<>B", False],["<N", True]],
+[["L>", True],["<>S", True],["<>"],["<>"],["<>"],["<>B", False,1],["<N", True]],
 ],
 [ # Map 6 "The Boss Trials"
-[["L>", True],["<>S", True],["<>B", False],["<>B", False],["<>B", False],["<>B", False],["<B", False]],
+[["L>", True],["<>S", True],["<>B", False,1],["<>B", False,2],["<>B", False,3],["<>B", False,4],["<B", False,5]],
 ],
 ]
 mapInfo = [
@@ -241,11 +241,10 @@ text = [
 "Skeletons line the wall, giving you a grim feeling they may come alive, but it is probably fine",
 "A monotonous droning in the background lulls you into a hypnotic state.",
 "Feeling hungry?\nTry the dungeon's well-stocked vending machine.\n(unhelpful tip)",
-"Having traveled through the halls of the evil castle, you happen upon a regal stairway.\nAssuming it may lead to the final boss, you take your first step up the stairs.\nAnd then some more...\nAnd then even more...\nIt has alot of stairs."]
+"Having traveled through the halls of the evil castle, you happen upon a regal stairway.\nAssuming it may lead to the final boss, you take your first step up the stairs.\nAnd then some more...\nAnd then even more...\nIt has alot of stairs."],
 ["Having finished climbing up the stairs, you reach a long hallway.\nA red carpet, seemingly laid out for you, lies before you.\nYou begin to walk forward.\n\n'You have finally arrived, I have been waiting for you.' A voice booms.",
 "You sense an evil presence crawling on your back, staring into you.\nOr maybe that's just your hunger.",
-"The demon lord gets up off of his knee, looking towards you.\n'I haven't been able to fight like that in a long time!'\n'I had a feeling you would be able to satisfy my craving for a good battle.'\n'Sorry about just taking you from your home and putting you into this world, I'll return you now.'\n'What is this world?'\n'Well, that's not super important right now, but maybe I'll bring you back if you really want to know.'\nThat is the last thing you remember before wake up back in your bed to your alarm.\nWas it a dream? You can't tell anymore.\n..."
-],
+"The demon lord gets up off of his knee, looking towards you.\n'I haven't been able to fight like that in a long time!'\n'I had a feeling you would be able to satisfy my craving for a good battle.'\n'Sorry about just taking you from your home and putting you into this world, I'll return you now.'\n'What is this world?'\n'Well, that's not super important right now, but maybe I'll bring you back if you really want to know.'\nThat is the last thing you remember before wake up back in your bed to your alarm.\nWas it a dream? You can't tell anymore.\n..."],
 ["Welcome to the post-game.\nFeel free to return to previous maps and finish exploring or complete the boss trials."]
 ]
 

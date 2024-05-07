@@ -62,6 +62,8 @@ def combat(plr: list, enm: list):
 
         set = useActions(actions, set)
 
+        time.sleep(1)
+
     for act in action.all_actions: # Removing all action objects at the end of battle
         act.del_self()
 
@@ -85,7 +87,7 @@ def printMenus(set):
         else:
             plr = "        "
 
-        print(f"{enm}{set[i+4]['name']}{' '*(20-len(set[i+4]['name']))} [{'='*math.round(10-((set[i+4]['maxHP']-set[i+4]['HP'])/set[i+4]['maxHP']*10))}{' '*math.round(10-(-set[i+4]['HP']/set[i+4]['maxHP']*10))}]     [{'='*math.round(10-((set[i]['maxHP']-set[i+4]['HP'])/set[i]['maxHP']*10))}{' '*math.round(10-(-set[i+4]['HP']/set[i+4]['maxHP']*10))}] {set[i]['name']}{' '*(20-len(set[i]['name']))}{plr}")
+        print(f"{enm}{set[i+4]['name']}{' '*(21-len(set[i+4]['name']))} [{'='*math.round(10-((set[i+4]['maxHP']-set[i+4]['HP'])/set[i+4]['maxHP']*10))}{' '*math.round(10-(-set[i+4]['HP']/set[i+4]['maxHP']*10))}]     [{'='*math.round(10-((set[i]['maxHP']-set[i+4]['HP'])/set[i]['maxHP']*10))}{' '*math.round(10-(-set[i+4]['HP']/set[i+4]['maxHP']*10))}] {set[i]['name']}{' '*(21-len(set[i]['name']))}{plr}")
 
         time.sleep(0.2)
 
@@ -105,7 +107,7 @@ def useActions(acts, set):
 
         match acts[i]["type"]:
             case "s":
-                dmg = acts[i].calculation[0] * set[i]["attack"] * (random.randint(90,110) / 100)
+                dmg = math.round(acts[i].calculation[0] * set[i]["attack"] * (random.randint(90,110) / 100))
                 tar = [set[4], set[5], set[6], set[7]]
                 for e in tar:
                     if e["HP"] <= 0:
@@ -130,7 +132,7 @@ def useActions(acts, set):
                     set[n]["HP"] -= dmg
                     print(f"{set[i]['name']} did {dmg} damage to {set[n]['name']} with {acts[i]['name']}")
             case "a":
-                dmg = acts[i].calculation[0] * set[i]["attack"] * (random.randint(90,110) / 100)
+                dmg = math.round(acts[i].calculation[0] * set[i]["attack"] * (random.randint(90,110) / 100))
                 for e in range(4,8):
                     temp = False
                     a = 0
@@ -147,7 +149,7 @@ def useActions(acts, set):
                         set[e]["HP"] -= dmg
                         print(f"{set[i]['name']} did {dmg} damage to {set[e]['name']} with {acts[i]['name']}")
             case "h":
-                heal = acts[i].calculation[0] * set[i]["maxHP"] * (random.randint(95,105) / 100)
+                heal = math.round(acts[i].calculation[0] * set[i]["maxHP"]) * (random.randint(95,105) / 100)
                 if acts[i].calculation[1] != "self":
                     tar = [set[0], set[1], set[2], set[3]]
                     for e in tar:
@@ -283,6 +285,8 @@ def useActions(acts, set):
                             set[n]["HP"] = 30
                             set[n]["state"].append("alive")
                             print(f"{set[n]["name"]} was revived by {set[i]["name"]}")
+                        else:
+                            print(f"{set[i]["name"]} had no targets to revive")
                     case 1:
                         for e in range(0,4):
                             for n in set[e]["state"]:
@@ -308,7 +312,7 @@ def useActions(acts, set):
 
         match acts[i+4]["type"]:
             case "s":
-                dmg = acts[i+4].calculation[0] * set[i]["attack"] * (random.randint(90,110) / 100)
+                dmg = math.round(acts[i+4].calculation[0] * set[i]["attack"] * (random.randint(90,110) / 100))
                 tar = [set[0], set[1], set[2], set[3]]
                 for e in tar:
                     if e["HP"] <= 0:
@@ -333,7 +337,7 @@ def useActions(acts, set):
                     set[n]["HP"] -= dmg
                     print(f"{set[i+4]['name']} did {dmg} damage to {tar['name']} with {acts[i+4]['name']}")
             case "a":
-                dmg = acts[i].calculation[0] * set[i]["attack"] * (random.randint(90,110) / 100)
+                dmg = math.round(acts[i].calculation[0] * set[i]["attack"] * (random.randint(90,110) / 100))
                 for e in range(0,4):
                     temp = False
                     a = 0
@@ -350,7 +354,7 @@ def useActions(acts, set):
                         set[e]["HP"] -= dmg
                         print(f"{set[i+4]['name']} did {dmg} damage to {set[e]['name']} with {acts[i+4]['name']}")
             case "h":
-                heal = acts[i+4].calculation[0] * set[i+4]["maxHP"] * (random.randint(95,105) / 100)
+                heal = math.round(acts[i+4].calculation[0] * set[i+4]["maxHP"] * (random.randint(95,105) / 100))
                 if acts[i].calculation[1] != "self":
                     tar = [set[4], set[5], set[6], set[7]]
                     for e in tar:
@@ -478,6 +482,8 @@ def useActions(acts, set):
                             set[n]["HP"] = 30
                             set[n]["state"].append("alive")
                             print(f"{set[n]["name"]} was revived by {set[i+4]["name"]}")
+                        else:
+                            print(f"{set[i+4]["name"]} had no targets to revive")
                     case 1:
                         for e in range(4,8):
                             for n in set[e]["state"]:
@@ -551,7 +557,7 @@ def statusEffects(set):
                             set[i]["state"].pop(e)
                             print(f"{set[i]["name"]}'s regeneration buff ended")
                         else:
-                            set[i]["HP"] += set[i]["HP"]/5
+                            set[i]["HP"] += math.round(set[i]["HP"]/5)
                     case "shield":
                         set[i]["state"][e][1] -= 1
                         if set[i]["state"][e][1] < 1:
@@ -572,7 +578,7 @@ def statusEffects(set):
                             print(f"{set[i]["name"]}'s speed debuff ended")
                     case "poison":
                         set[i]["state"][e][1] -= 1
-                        dmg = set[i]["state"][e][2] * random.randint(95,105) / 100
+                        dmg = math.round(set[i]["state"][e][2] * random.randint(95,105) / 100)
                         if set[i]["state"][e][1] < 1:
                             set[i]["state"].pop(e)
                             print(f"{set[i]["name"]}'s {set[i]["state"][e][3]} ended")
@@ -627,27 +633,27 @@ class action:
 #                                     ^Enemy only
 actionDict = {
 "names": [
-["Bite", "Gun"], # Single attacks
-["Pizza wheel", "Rap bomb"], # Area attacks
-["Cupcake"], ["Acorn", "Cannibalism"], ["Burger bite"], # Heals
-["Command"], ["Jam out"], ["Sing"], # Buffs
-["Disturbing tone"], ["Cripple"], ["Bleeding slash"], # Debuffs
-["Kamikaze"] # Specials
+["Bite", "Gun"], ["Crash", "Ram", "Broom spear","The f*** off beam","Punch","Complain","Ruler slap","Bat swing","Soul clutch", "Gun+"], ["Kill yourself NOW", "Sword slash"], ["Piercing glare", "Ultrakill", "Mega bite"], # Single attacks
+["Pizza wheel", "Rap bomb", "Draw", "Clutch up"], ["Fire bomb", "Spirit bomb","Superiority complex","Missiles","Supersonic cry", "Unfunny joke"], ["Debris crash","Imminent danger"]# Area attacks
+["Cupcake","Sunny day"], ["Gatorade jug", "Healing spell", "Healing bomb"], ["Healing grenade"], ["Ultraheal"], ["Acorn", "Cannibalism", "Apple", "Adrenaline shot"], ["Burger bite", "Phoenix feather"], # Heals
+["Command","Gear up"], ["Inspire", "War scream", "Victory cry","Red glow"], ["Jam out", "Bad Apple!!", "Blatant harrasment", "Agility","Blue glow"], ["Sing"], ["Regenerative chitter","Green glow"], ["Block stance","Instant transmission","Strange occurence"], ["Taunt"], # Buffs
+["Disturbing tone", "Funny look", "Demoralize", "Empathy", "Bone rattle", "Halloween scare"], ["Cripple", "Exhaust fumes", "Sticky solution", "Sticky situation", "Zap taser","MLP Jar","Slow down"], ["Bleeding slash", "Deep cuts"], ["Venom spray"], ["Fire breath", "Grease spray"], ["Scorching ray"], ["Headache"], # Debuffs
+["Life ritual", "Full repair"], ["Cleanse", "Pace set"], ["Wash off", "Tears"], ["Kamikaze"] # Specials
 ], 
 "type": [
-"s", 
-"a", 
-"h", "h", "h",
-"b", "b", "b",
-"d", "d", "d",
-"s"
+"s","s","s","s"
+"a","a","a",
+"h","h","h","h","h","h",
+"b","b","b","b","b","b","b",
+"d","d","d","d","d","d","d",
+"sp","sp","sp","sp"
 ],
 "calculation": [
-0.80, 
-0.40, 
-[0.40, 2], [0.50, "self"], [0.30, "self"]
-[0, 2], [1, 2], [2, 2],
-[0, 2], [1, 2], [2, 2, 0.50, "bleed"],
-[3]
+0.80, 1.00, 1.20, 1.50,
+0.40, 0.60, 0.80,
+[0.40, 2], [0.20, 4], [0.60, 3], [1.00, 2], [0.50, "self"], [0.30, "self"]
+[0, 2], [0, 3], [1, 2], [2, 2], [2, 4], [3, 2], [4]
+[0, 2], [1, 2], [2, 2, 0.50, "bleed"], [2, 3, 0.50, "poison"], [2, 3, 0.60, "burning"], [2, 2, 0.80, "scorching"], [2, 2, 0.80, "brain pain"],
+[0], [1], [2], [3],
 ]
 }

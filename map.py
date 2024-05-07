@@ -69,7 +69,7 @@ def printMap(map,pos):
 
     for item in final:
         print(item)
-    print("S: Start | F: Fight | T: Treasure | B: Boss | N: Next | L: Last | ?: Undiscovered\n")
+    print("S: Start | F: Fight | T: Treasure | B: Boss | M: Miniboss | N: Next | L: Last | ?: Undiscovered\n")
 
 def movePos(map, pos):
     a = pos
