@@ -37,7 +37,7 @@ def printMap(map,pos):
                 node[2] = "".join(node[2])
 
 
-            if "S" in column[0] or "F" in column[0] or "T" in column[0] or "B" in column[0] or "N" in column[0] or "L" in column[0]:
+            if "S" in column[0] or "F" in column[0] or "T" in column[0] or "B" in column[0] or "N" in column[0] or "L" in column[0] or "M" in column[0]:
                 for i in range(1,4):
                     node[i] = list(node[i])
                 for i in range(1,4):
@@ -131,6 +131,8 @@ def checkPos(map, pos):
                 return "treasure"
             case "B":
                 return "boss"
+            case "M":
+                return "mini"
     else:
         match map[a[0]][a[1]][0][-1]:
             case "N":

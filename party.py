@@ -122,7 +122,7 @@ class enemy:
         if type == "boss":
             
             for ent in options:
-                if "norm" in ent.tier:
+                if "norm" in ent.tier or "mini" in ent.tier:
                     options.pop(options.index(ent))
                   
             for ent in options:
@@ -137,9 +137,22 @@ class enemy:
                         for i in range(2-(options.len()-1)):
                             result.append(ent)
 
-        elif type == "fight":
+        elif type == "mini":
+            
+            minis = []
             for ent in options:
                 if "boss" in ent.tier or "minion" in ent.tier:
+                    options.pop(options.index(ent))
+                elif "mini" in ent.tier:
+                    minis.append(ent)
+                    options.pop(options.index(ent))
+            result.append(random.randint(0,len(minis)))
+            for i in range(num-1):
+                result.append(options[random.randint(0, len(options))])
+
+        elif type == "fight":
+            for ent in options:
+                if "boss" in ent.tier or "minion" in ent.tier or "mini" in ent.tier:
                     options.pop(options.index(ent))
                     
             for i in range(num):
@@ -147,7 +160,7 @@ class enemy:
         
         if len(result) > 4:
             for i in range(4, len(result)):
-                result.pop(i)
+                result.pop(4)
         
         return result
 
@@ -164,5 +177,5 @@ enemies = {
 "speed": [3, 4, 4],
 "health": [100, 160, 400],
 "actionIDs": [["Gun", "Acorn"], ["Gun", "Cannibalism"], ["Burger bite", "Gun", "Rap bomb"]],
-"tier": ["tutorial,norm", "tutorial,norm", "tutorial,boss"]
+"tier": [["tutorial","norm"], ["tutorial","norm"], ["tutorial","boss"]]
 }
