@@ -17,7 +17,7 @@ class character:
         temp = "\nActions: "
         for act in self.actionIDs:
             temp += f"{act} - "
-        print(f"Name: {self.name} - Level: {self.level}\nHealth: {self.health} - Attack: {self.level} - Speed: {self.speed}{temp.rstrip("- ")}")
+        print(f"Name: {self.name} - Level: {self.level}\nHealth: {self.health} - Attack: {self.level} - Speed: {self.speed}{temp.rstrip('- ')}")
         
     def gain_experience(self, exp):
         # Increases experience by a given amount and automatically increases level
@@ -74,7 +74,7 @@ class character:
         Prints a full list of characters with 4 characters per line.
         """
         string = ["Characters:\n"]
-        for i in range(character.defined_characters.len()):
+        for i in range(len(character.defined_characters)):
             match i % 4:
                 case 0:
                     string += f"{i+1}. {character.defined_characters[i].name},"
@@ -114,13 +114,14 @@ characters = { #chicchikin is id no. 0, febbyfaber is id no. 1, etc.
 }
 
 class enemy:
-    all_enemies = {}
+    all_enemies = []
     
     def __init__(self, id):
         self.id = id
+        self.tier = None
         for attr in ["name", "attack", "health", "speed", "actionIDs", "tier"]:
-            setattr(self, attr, characters[attr][id])
-        enemy.all_enemies.add(self)
+            setattr(self, attr, enemies[attr][id])
+        enemy.all_enemies.append(self)
             
     def find_of_tier(tier):
         result = []
@@ -149,7 +150,7 @@ class enemy:
                     if ent not in result:
                         result.append(ent)
                     else:
-                        for i in range(2-(options.len()-1)):
+                        for i in range(2-(len(options)-1)):
                             result.append(ent)
 
         elif type == "mini":
@@ -161,17 +162,17 @@ class enemy:
                 elif "mini" in ent.tier and id in ent.tier:
                     minis.append(ent)
                     options.pop(options.index(ent))
-            result.append(random.randint(0,len(minis)))
+            result.append(random.randint(0,len(minis)-1))
             for i in range(num-1):
-                result.append(options[random.randint(0, len(options))])
+                result.append(options[random.randint(0, len(options)-1)])
 
         elif type == "fight":
             for ent in options:
                 if "boss" in ent.tier or "minion" in ent.tier or "mini" in ent.tier:
                     options.pop(options.index(ent))
-                    
+            
             for i in range(num):
-                result.append(options[random.randint(0, len(options))])
+                result.append(options[random.randint(0, len(options)-1)])
         
         if len(result) > 4:
             for i in range(4, len(result)):
@@ -180,7 +181,7 @@ class enemy:
         return result
 
     def append_tier(tier):
-        for a in range(enemies["name"].len()):
+        for a in range(len(enemies["name"])):
             if tier in enemies["tier"][a]:
                 enemy(a)
     
@@ -217,7 +218,7 @@ enemies = {
 1700, 350, 1500, 500, 2000, 2200, 2500], # World 6
 "actionIDs": [["Gun", "Acorn"], ["Gun", "Cannibalism"], ["Burger bite", "Gun", "Rap bomb"],
 ["Complain", "Superiority complex", "MLP Jar"], ["Kamikaze", "Gun"], ["Zap taser", "Punch"], ["Missiles", "Grease spray", "Gear up"], ["Gun", "Gear up", "Healing grenade", "Quick repair"], ["Gun"], # World 1
-["Draw", "Bite", "Cannibalism"], ["Bite", "Sticky situation", "Venom spray"], ["Ruler slap", "Apple", "Demoralize"], ["Punch", "Block stance","Adrenaline shot"], ["Victory cry", "Gatorade jug", "Blatant harrasment", "Pace set"], ["Bat swing","Clutch up"], # World 2
+["Draw", "Bite", "Cannibalism"], ["Bite", "Sticky situation", "Venom spray"], ["Ruler slap", "Apple", "Demoralize"], ["Punch", "Block stance","Adrenaline shot"], ["Victory cry", "Gatorade jug", "Blatant harrassment", "Pace set"], ["Bat swing","Clutch up"], # World 2
 ["Supersonic cry", "Sunny day", "Empathy"], ["Punch", "Tears"], ["Bite", "Agility"], ["Strange occurence", "Headache", "Imminent danger"], ["Unfunny joke", "Healing spell", "Deep cuts"], ["Ultrakill","Sunny day", "War scream", "Imminent danger"], # World 3
 ["Piercing glare", "War scream", "Psychic headache"], ["Sword slash", "Bone rattle"], ["Soul clutch", "Slow down"], ["Supersonic cry", "Sing", "Tears"], ["Halloween scare", "Supersonic cry", "Deep cuts"], ["Fire breath", "Phoenix feather", "Piercing glare"], ["Scorching ray", "Mega bite","Debris crash", "War scream"], # World 4
 ["Imminent danger","Ultrakill","Block stance"], ["Red glow"], ["Blue glow"], ["Green glow"], # World 5
@@ -228,5 +229,5 @@ enemies = {
 ["a","norm"], ["a","norm"], ["a","norm"], ["a","mini",1], ["a","mini",2], ["a","boss",3], # World 3
 ["s","norm"], ["s","norm"], ["s","norm"], ["s","norm"], ["s","mini",1], ["s","mini",2], ["s","boss",3], # World 4
 ["lord","boss",1], ["lord","minion",1], ["lord","minion",1], ["lord","minion",1], # World 5
-["absurd","boss",1], ["absurd","minion",1], ["absurd","boss",2], ["absurd","minion",2], ["absurd","boss",3], ["absurd","boss",4], ["absurd","boss",5]], # World 6
+["absurd","boss",1], ["absurd","minion",1], ["absurd","boss",2], ["absurd","minion",2], ["absurd","boss",3], ["absurd","boss",4], ["absurd","boss",5]] # World 6
 }

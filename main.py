@@ -1,26 +1,30 @@
-import combat as c, map as m, party as p
+import combat as c
+import map as m
+import party as p
 import math, time, re, operator, random
 
-# Input that removes all outside 
-# re.sub('\\W+','', input("> "))
 
 def main():
     for i in range(4):
         charFound(i)
+        time.sleep(0.2)
         allChars[i].join_party(partyList, i)
+        time.sleep(0.2)
     
-    getText(0)
+    # getText(0)
+    for i in range(7):
+        p.enemy.append_tier(mapInfo[i]["tier"])
     
     while True:
         match mapNav():
             case "fight":
-                combat("fight", maps[playerMap][playerPos[0]][playerPos[1]])
+                combat("fight", maps[playerMap][playerPos[0]-1][playerPos[1]-1][2])
             case "boss":
-                combat("boss", id=maps[playerMap][playerPos[0]][playerPos[1]][-1])
+                combat("boss", id=maps[playerMap][playerPos[0]-1][playerPos[1]-1][-1])
             case "mini":
-                combat("mini", maps[playerMap][playerPos[0]][playerPos[1]], maps[playerMap][playerPos[0]][playerPos[1]][-1])
+                combat("mini", maps[playerMap][playerPos[0]-1][playerPos[1]-1][2], maps[playerMap][playerPos[0]-1][playerPos[1]-1][-1])
             case "treasure":
-                a = random.randint(0, len(mapInfo[playerMap]["treasure"].len()))
+                a = random.randint(0, len(mapInfo[playerMap]["treasure"])-1)
                 b = mapInfo[playerMap]["treasure"][a].split(":")
                 if "character" == b[0]:
                     charFound(b[1])
@@ -89,32 +93,35 @@ def combat(type, num=2, id=None):
     match r:
         case "lose":
             print("You lost the battle and were sent back to the start of the map")
-            global playerPos 
             playerPos = m.findStart(playerMap, "S")
         case "win":
             match type:
                 case "boss":
-                    print(f"You beat the boss! Each character gained {mapInfo[playerMap]["experience"]*2} experience")
+                    gain = round(mapInfo[playerMap]["experience"]*2)
+                    print(f"You beat the boss! Each character gained {gain} experience")
                     for ent in partyList:
-                        ent.gain_experience(mapInfo[playerMap]["experience"]*2)
+                        ent.gain_experience(gain)
                 case "mini":
-                    print(f"You beat the miniboss. Each character gained {math.round(mapInfo[playerMap]["experience"]*1.5)} experience")
+                    gain = round(mapInfo[playerMap]["experience"]*1.5)
+                    print(f"You beat the miniboss. Each character gained {gain} experience")
                     for ent in partyList:
-                        ent.gain_experience(math.round(mapInfo[playerMap]["experience"]*1.5))
+                        ent.gain_experience(round(gain))
                 case "fight":
-                    print(f"You won, and each character gained {mapInfo[playerMap]["experience"]} experience")
+                    gain = round(mapInfo[playerMap]["experience"])
+                    print(f"You won, and each character gained {gain} experience")
                     for ent in partyList:
-                        ent.gain_experience(mapInfo[playerMap]["experience"])
+                        ent.gain_experience(gain)
 
 def mapNav():
-    m.printMap(playerMap, playerPos)
-    time.sleep(0.2)
-    r = m.movePos(playerMap, playerPos)
+    global playerPos
+    m.printMap(maps[playerMap], playerPos)
+    time.sleep(1)
+    r = m.movePos(maps[playerMap], playerPos)
     if r == "exit":
         return "char"
     else:
         playerPos = r
-        return m.checkPos(playerMap, playerPos)
+        return m.checkPos(maps[playerMap], playerPos)
 
 def enterMap(dir):
     match dir:
@@ -122,7 +129,7 @@ def enterMap(dir):
             getText(-1)
             time.sleep(1)
             playerMap += 1
-            global playerPos;playerPos = m.findPos(playerMap, "L")
+            playerPos = m.findPos(playerMap, "L")
             if mapInfo[playerMap]["found"] == False:
                 getText(0)
                 mapInfo[playerMap]["found"] = True
@@ -130,21 +137,21 @@ def enterMap(dir):
                 print(f"Moved to zone {playerMap+1}")
         case "back": # Moving to the previous map
             playerMap -= 1
-            global playerPos;playerPos = m.findPos(playerMap, "N")
+            playerPos = m.findPos(playerMap, "N")
             print(f"Moved to zone {playerMap+1}")
 
 def getText(id=None): # 0 prints enter message, -1 prints leaving message (only new zones)
     if id == 0 or id == -1:
         for line in text[playerMap][id].split("\n"):
-            time.sleep(0.2)
+            time.sleep(0.3)
             print(line)
-            time.sleep(0.55)
+            time.sleep(0.7)
         time.sleep(1.5)
     else:
-        for line in text[playerMap][random.randint(1,text[playerMap].len()-1)]:
-            time.sleep(0.2)
+        for line in text[playerMap][random.randint(1,len(text[playerMap])-2)].split("\n"):
+            time.sleep(0.5)
             print(line)
-            time.sleep(0.1)
+            time.sleep(1)
         time.sleep(0.25)
             
 # Player's party
@@ -159,7 +166,7 @@ allChars = []
 # (Third) letter is if the location has been discovered or not (Only locations)
 maps = [
 [ # Map 0 "Tutorial Island"
-[["V>"],["<V>F",False, 4],["<>T",False],["<V"]],
+[["V>"],["<V>F",False,4],["<>T",False],["<V"]],
 [["^VS",True],["^>"],["<V"],["^V>B",False,1],["<N",True]],
 [["^>"],["<>"], ["<^>F",False, 2],["<^"]]
 ],
@@ -244,6 +251,7 @@ text = [
 "Having traveled through the halls of the evil castle, you happen upon a regal stairway.\nAssuming it may lead to the final boss, you take your first step up the stairs.\nAnd then some more...\nAnd then even more...\nIt has alot of stairs."],
 ["Having finished climbing up the stairs, you reach a long hallway.\nA red carpet, seemingly laid out for you, lies before you.\nYou begin to walk forward.\n\n'You have finally arrived, I have been waiting for you.' A voice booms.",
 "You sense an evil presence crawling on your back, staring into you.\nOr maybe that's just your hunger.",
+"A chill rolls down your back.",
 "The demon lord gets up off of his knee, looking towards you.\n'I haven't been able to fight like that in a long time!'\n'I had a feeling you would be able to satisfy my craving for a good battle.'\n'Sorry about just taking you from your home and putting you into this world, I'll return you now.'\n'What is this world?'\n'Well, that's not super important right now, but maybe I'll bring you back if you really want to know.'\nThat is the last thing you remember before wake up back in your bed to your alarm.\nWas it a dream? You can't tell anymore.\n..."],
 ["Welcome to the post-game.\nFeel free to return to previous maps and finish exploring or complete the boss trials."]
 ]

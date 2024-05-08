@@ -90,29 +90,32 @@ def movePos(map, pos):
     match input("> ").lower():
         case "u":
             if "^" in map[a[0]][a[1]][0]:
-                temp = f"{a[0]},{a[1]+1}"
+                temp = [a[0],a[1]+1]
+                print("Moved up")
             else:
                 print("Invalid direction")
         case "d":
             if "V" in map[a[0]][a[1]][0]:
-                temp = f"{a[0]+2},{a[1]+1}"
+                temp = [a[0]+2,a[1]+1]
+                print("Moved down")
             else:
                 print("Invalid direction")
         case "l":
             if "<" in map[a[0]][a[1]][0]:
-                temp = f"{a[0]+1},{a[1]}"
+                temp = [a[0]+1,a[1]]
+                print("Moved left")
             else:
                 print("Invalid direction")
         case "r":
             if ">" in map[a[0]][a[1]][0]:
-                temp = f"{a[0]+1},{a[1]+2}"
+                temp = [a[0]+1,a[1]+2]
+                print("Moved right")
             else:
                 print("Invalid direction")
         case "c":
             return "exit"
         case None:
             print("Invalid input")
-
     if temp != pos:
         return temp
     else:
@@ -120,11 +123,11 @@ def movePos(map, pos):
 
 def checkPos(map, pos):
     a = pos
-    a[0] = int(a[0]) - 1
-    a[1] = int(a[1]) - 1
-    if False in map[a[0]][a[1]]:
-        map[a[0]][a[1]][1] = True
-        match map[a[0]][a[1]][0][-1]:
+    row = a[0] - 1
+    column = a[1] - 1
+    if False in map[row][column]:
+        map[row][column][1] = True
+        match map[row][column][0][-1]:
             case "F":
                 return "fight"
             case "T":
@@ -134,7 +137,7 @@ def checkPos(map, pos):
             case "M":
                 return "mini"
     else:
-        match map[a[0]][a[1]][0][-1]:
+        match map[row][column][0][-1]:
             case "N":
                 return "next"
             case "L":
@@ -144,4 +147,6 @@ def findPos(map, tar):
     for r in map:
         for c in map:
             if tar in c[0]:
-                return [r,c]
+                a = map.index(r)+1
+                b = r.index(c)+1
+                return [a,b]
