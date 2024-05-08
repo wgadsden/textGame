@@ -181,9 +181,11 @@ def useActions(acts, set):
                     heal = round(acts[i].calculation[0] * set[i]["maxHP"] * (random.randint(95,105) / 100))
                     if acts[i].calculation[1] != "self":
                         tar = [set[0], set[1], set[2], set[3]]
+                        list = []
                         for c in range(4):
-                            if tar[c]["HP"] <= 0 or tar[c]["HP"] == tar[c]["maxHP"]:
-                                tar.pop(c)
+                            if tar[c]["HP"] > 0 and tar[c]["HP"] < tar[c]["maxHP"]:
+                                list.append(tar[c])
+                        tar = list
                         valTar = []
                         for e in range(acts[i].calculation[1]):
                             if len(tar) == 1:
@@ -635,9 +637,8 @@ def checkHP(set):
 def statusEffects(set):
     for i in range(8):
         if "alive" in set[i]['state'] and "ready" in set[i]['state']:
-            print(f"Checking {set[i]['name']}'s statuses")
             for e in range(len(set[i]['state'])):
-                match set[i]['state'][e]:
+                match set[i]['state'][e][0]:
                     case "atkUP":
                         set[i]['state'][e][1] -= 1
                         if set[i]['state'][e][1] < 1:
